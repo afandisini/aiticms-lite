@@ -109,6 +109,14 @@ Lalu buka:
 http://127.0.0.1:8000
 ```
 
+## Demo
+
+Demo publik tersedia di:
+
+```text
+https://aiticms.aiti-solutions.com/
+```
+
 ## Akun Demo Login
 
 Setelah menjalankan `php aiti migrate`, akun admin demo default yang bisa dipakai adalah:
@@ -122,6 +130,14 @@ Catatan:
 
 - akun ini hanya untuk baseline development/demo
 - segera ganti password setelah login pertama, terutama jika project dipakai di server publik
+
+## Dukung Maintainer
+
+Boleh traktir kopi biar maintainer kuat begadang.
+
+- [Saweria](https://saweria.co/aitisolutions)
+- [Buymeacoffee](https://buymeacoffee.com/aitisolutions)
+- QRIS tersedia (Hubungi saya)
 
 ## Database
 
