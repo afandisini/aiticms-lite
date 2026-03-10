@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Aiticms-Lite Logo Gambar Besar</title>
+  <desc id="desc">Aiticms-Lite adalah CMS ringan dari Aiti-Solutions yang mendukung pembuatan Blog, Portal Berita, Company Profile, dan Landing Page statis. Dirancang cepat, responsif, serta mudah dikustomisasi untuk kebutuhan website modern</desc>
+  <defs>
+    <linearGradient id="coverBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#334155" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="32" fill="url(#coverBg)" />
+  <circle cx="240" cy="160" r="110" fill="#0f766e" opacity="0.45" />
+  <circle cx="1040" cy="560" r="140" fill="#f59e0b" opacity="0.38" />
+  <text x="640" y="328" text-anchor="middle" font-family="Verdana, sans-serif" font-size="80" fill="#f8fafc">Aiticms-Lite</text>
+  <text x="640" y="396" text-anchor="middle" font-family="Verdana, sans-serif" font-size="34" fill="#cbd5e1">CMS Ringan, Modern Website, dan SEO Friendly</text>
+</svg>

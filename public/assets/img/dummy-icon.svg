@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Icon</title>
+  <desc id="desc">Icon Aiti-Solutions.</desc>
+  <rect width="256" height="256" rx="56" fill="#f59e0b" />
+  <circle cx="128" cy="128" r="72" fill="#fff7ed" />
+  <path d="M92 158h72v20H92zM118 78h20v72h-20z" fill="#b45309" />
+</svg>

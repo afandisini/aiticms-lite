@@ -1,0 +1,59 @@
+Options -Indexes
+ErrorDocument 404 /index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Preserve Authorization header for app middleware/auth flows.
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # File manager assets may live outside public/ on shared hosting,
+    # so let the app resolve and stream them when requested.
+    RewriteRule ^storage/filemanager(/.*)?$ public/index.php [L,QSA,NC]
+    RewriteRule ^storage/avatars(/.*)?$ public/index.php [L,QSA,NC]
+
+    # Publicly exposed assets/files are served from /public.
+    RewriteRule ^(assets|storage)(/.*)?$ public/$1$2 [L,NC]
+    RewriteRule ^(favicon\.ico|robots\.txt|sitemap\.xml)$ public/$1 [L,NC]
+
+    # Block direct access to hidden files and sensitive project files.
+    RewriteRule "(^|/)\.(?!well-known/)" - [F]
+    RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|artisan|aiti|AGENT\.md|CHANGELOG\.md|VERSION)$ - [F,NC]
+    RewriteRule ^(\.env(\..*)?|storage/.*\.key|log/.*|database/.*\.sql)$ - [F,NC]
+    RewriteRule ^(app|bootstrap|config|core|database|routes|system|tests|vendor)(/|$) - [F,NC]
+
+    # Serve real files/directories in the project root directly when they exist.
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Frontend URL compatibility for content pages.
+    RewriteRule ^(read|products)/.+\.html$ public/index.php [L,QSA,NC]
+
+    # Send everything else through the public front controller.
+    RewriteRule ^ public/index.php [L,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    <FilesMatch "\.(css|js|woff2|woff|ttf|svg|png|jpe?g|gif|webp|ico)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 month"
+    ExpiresByType font/woff "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+</IfModule>

@@ -1,0 +1,25 @@
+name: Protect System From Direct Changes
+
+on:
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  system-sync-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Ensure base branch is available
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}" --depth=1
+
+      - name: Guard system/ changes
+        run: |
+          bash scripts/ci-check-system-sync.sh "${{ github.base_ref }}"
+

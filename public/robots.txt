@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Sitemap utama
+Sitemap: https://aiti-solutions.com/sitemap.xml
+
+# Admin CMS dan alias panel
+Disallow: /cms/
+Disallow: /dashboard
+Disallow: /home
+Disallow: /view-sites
+Disallow: /blog/
+Disallow: /pengaturan
+Disallow: /users/management
+Disallow: /menu
+Disallow: /slider
+Disallow: /file-manager
+
+# Hindari indeks halaman utilitas / hasil internal
+Disallow: /search
+Disallow: /not-found
+
+# Endpoint teknis yang tidak perlu diindeks
+Disallow: /.well-known/aiticore
+Disallow: /.well-known/aiti-cms
+
+# Aset publik tetap boleh dirayapi untuk rendering dan image indexing
+Allow: /assets/
+Allow: /storage/

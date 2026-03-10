@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Dummy Page</title>
+  <desc id="desc">Gambar dummy untuk halaman dan kategori seed Aiti-Solutions.</desc>
+  <defs>
+    <linearGradient id="pageBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#0f766e" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="32" fill="url(#pageBg)" />
+  <rect x="120" y="88" width="1040" height="544" rx="28" fill="#ecfeff" opacity="0.96" />
+  <rect x="180" y="148" width="360" height="34" rx="17" fill="#115e59" />
+  <rect x="180" y="230" width="820" height="20" rx="10" fill="#99f6e4" />
+  <rect x="180" y="276" width="760" height="20" rx="10" fill="#99f6e4" />
+  <rect x="180" y="322" width="840" height="20" rx="10" fill="#99f6e4" />
+  <rect x="180" y="400" width="920" height="150" rx="24" fill="#ccfbf1" />
+  <text x="640" y="606" text-anchor="middle" font-family="Verdana, sans-serif" font-size="50" fill="#115e59">Page</text>
+</svg>

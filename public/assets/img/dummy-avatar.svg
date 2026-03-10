@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-labelledby="title desc">
+  <title id="title">Dummy Avatar</title>
+  <desc id="desc">Avatar Aiti-Solutions.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#444444" />
+      <stop offset="100%" stop-color="#999999" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="640" rx="64" fill="url(#bg)" />
+  <circle cx="320" cy="240" r="112" fill="#f8fafc" opacity="0.95" />
+  <path d="M154 530c22-98 96-148 166-148s144 50 166 148" fill="#f8fafc" opacity="0.95" />
+  <text x="320" y="604" text-anchor="middle" font-family="Verdana, sans-serif" font-size="40" fill="#000000">AfanDev</text>
+</svg>

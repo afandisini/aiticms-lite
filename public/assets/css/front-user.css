@@ -1,0 +1,115 @@
+.front-user-page {
+  min-height: 100vh;
+  padding: 96px 0 48px;
+}
+
+.front-user-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.front-user-header {
+  margin-bottom: 24px;
+}
+
+.front-user-eyebrow {
+  margin-bottom: 8px;
+  color: var(--front-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.front-user-title {
+  margin-bottom: 8px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+}
+
+.front-user-subtitle {
+  margin-bottom: 0;
+  color: var(--bs-secondary-color);
+  max-width: 720px;
+}
+
+.front-user-card,
+.front-user-info-box {
+  height: 100%;
+  padding: 20px;
+  border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.08);
+  border-radius: 20px;
+  background: rgba(var(--bs-emphasis-color-rgb), 0.02);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.front-user-card-head {
+  margin-bottom: 18px;
+}
+
+.front-user-card-head h2,
+.front-user-info-title {
+  margin-bottom: 6px;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.front-user-card-head p,
+.front-user-info-label {
+  margin-bottom: 0;
+  color: var(--bs-secondary-color);
+}
+
+.front-user-meta-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.front-user-meta-list span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--bs-secondary-color);
+  font-size: 0.9rem;
+}
+
+.front-user-meta-list strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.front-user-table th {
+  white-space: nowrap;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.front-user-table td,
+.front-user-table th {
+  background: transparent !important;
+}
+
+.front-user-empty {
+  padding: 24px 8px;
+  text-align: center;
+}
+
+.front-user-empty h2 {
+  margin-bottom: 8px;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+@media (max-width: 767.98px) {
+  .front-user-page {
+    padding: 84px 0 32px;
+  }
+
+  .front-user-card,
+  .front-user-info-box {
+    padding: 18px;
+    border-radius: 18px;
+  }
+}

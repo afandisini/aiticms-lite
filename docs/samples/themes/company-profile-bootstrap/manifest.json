@@ -1,0 +1,19 @@
+{
+  "slug": "company-profile-bootstrap",
+  "name": "Company Profile Bootstrap",
+  "version": "1.0.1",
+  "description": "Tema company profile untuk bisnis jasa, software house, agensi, dan konsultan.",
+  "screenshot": "assets/screenshot.webp",
+  "templates": {
+    "home": "templates/home.html",
+    "page": "templates/page.html"
+  },
+  "assets": {
+    "css": [
+      "assets/theme.css"
+    ],
+    "js": [
+      "assets/theme.js"
+    ]
+  }
+}

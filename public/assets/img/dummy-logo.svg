@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Dummy Logo</title>
+  <desc id="desc">Logo dummy untuk seed Aiti-Solutions.</desc>
+  <rect width="512" height="512" rx="96" fill="#444444" />
+  <path d="M112 374 236 122h40l124 252h-62l-24-52H198l-24 52Zm110-102h68l-34-74Z" fill="#ecfeff" />
+</svg>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{site_title}</title>
+</head>
+<body>
+  {header}
+  <main class="cp-main">
+    <section class="container py-5">
+      <div class="cp-hero rounded-5 overflow-hidden">
+        <div class="row g-0 align-items-center">
+          <div class="col-lg-7">
+            <div class="p-4 p-lg-5">
+              <span class="cp-pill">Company Profile</span>
+              <h1 class="display-4 mt-3 mb-3">Tampilan profesional untuk bisnis yang ingin terlihat kredibel.</h1>
+              <p class="lead text-secondary mb-4">{site_description}</p>
+              <div class="d-flex flex-wrap gap-2">
+                <a href="#insights" class="btn btn-dark rounded-pill px-4">Lihat Insight</a>
+                <a href="#about" class="btn btn-outline-dark rounded-pill px-4">Tentang Kami</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="cp-panel h-100">
+              <div class="cp-stat">
+                <strong>25+</strong>
+                <span>Project aktif</span>
+              </div>
+              <div class="cp-stat">
+                <strong>10y</strong>
+                <span>Pengalaman tim</span>
+              </div>
+              <div class="cp-stat">
+                <strong>24/7</strong>
+                <span>Dukungan operasional</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="container pb-5" id="about">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="cp-card h-100">
+            <h2 class="h5">Tentang</h2>
+            <p class="mb-0">Gunakan halaman statis Bootstrap untuk mempresentasikan profil perusahaan dengan lebih rapi.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="cp-card h-100">
+            <h2 class="h5">Layanan</h2>
+            <p class="mb-0">Website, aplikasi internal, otomasi workflow, hingga dashboard operasional.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="cp-card h-100">
+            <h2 class="h5">Kontak</h2>
+            <p class="mb-0">CTA dan kontak tetap bisa ditaruh manual di HTML tema tanpa membuka kode server-side.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="container pb-5" id="insights">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="h3 mb-0">Insight Terbaru</h2>
+        <span class="small text-secondary">Dynamic block</span>
+      </div>
+      {sort_article limit=3}
+    </section>
+  </main>
+  {footer}
+</body>
+</html>

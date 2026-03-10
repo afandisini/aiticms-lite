@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Picture Article</title>
+  <desc id="desc">Gambar artikel seed Aiti-Solutions.</desc>
+  <defs>
+    <linearGradient id="articleBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c2d12" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="32" fill="url(#articleBg)" />
+  <text x="640" y="610" text-anchor="middle" font-family="Verdana, sans-serif" font-size="150" fill="#f8f8f8">TEST</text>
+</svg>
