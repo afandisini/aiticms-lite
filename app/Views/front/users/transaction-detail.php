@@ -5,14 +5,25 @@
 /** @var array $fileStatus */
 /** @var string $paymentType */
 /** @var array<string, mixed>|null $flash */
+/** @var string $snapToken */
+/** @var string $snapJsUrl */
+/** @var string $snapClientKey */
+/** @var bool $autoOpenPayment */
+/** @var string $paymentLaunchError */
 $transaction = is_array($transaction ?? null) ? $transaction : [];
 $details = is_array($details ?? null) ? $details : [];
 $paymentStatus = is_array($paymentStatus ?? null) ? $paymentStatus : ['label' => '-', 'class' => 'text-bg-secondary'];
 $fileStatus = is_array($fileStatus ?? null) ? $fileStatus : ['label' => '-', 'class' => 'text-bg-secondary'];
 $paymentType = trim((string) ($paymentType ?? '-'));
 $flash = is_array($flash ?? null) ? $flash : null;
+$snapToken = trim((string) ($snapToken ?? ''));
+$snapJsUrl = trim((string) ($snapJsUrl ?? ''));
+$snapClientKey = trim((string) ($snapClientKey ?? ''));
+$autoOpenPayment = (bool) ($autoOpenPayment ?? false);
+$paymentLaunchError = trim((string) ($paymentLaunchError ?? ''));
 $midtransId = trim((string) ($transaction['midtrans_id'] ?? ''));
 $isPending = (int) ($transaction['status_bayar'] ?? -1) === 2;
+$canLaunchPayment = $isPending && $midtransId !== '' && $snapToken !== '' && $snapJsUrl !== '' && $snapClientKey !== '';
 ?>
 <main class="front-user-page">
   <div class="container front-user-shell">
@@ -27,6 +38,12 @@ $isPending = (int) ($transaction['status_bayar'] ?? -1) === 2;
       <div class="alert rounded-4 alert-<?= e($flashType) ?> alert-dismissible fade show" role="alert">
         <?= e((string) ($flash['message'] ?? '')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+
+    <?php if ($paymentLaunchError !== ''): ?>
+      <div class="alert rounded-4 alert-warning" role="alert">
+        <?= e($paymentLaunchError) ?>
       </div>
     <?php endif; ?>
 
@@ -55,9 +72,9 @@ $isPending = (int) ($transaction['status_bayar'] ?? -1) === 2;
           </div>
           <?php if ($isPending && $midtransId !== ''): ?>
             <div class="d-grid gap-2 mt-4">
-              <a href="/payment?order=<?= rawurlencode($midtransId) ?>" class="btn btn-primary btn-sm">
+              <button type="button" class="btn btn-primary btn-sm" id="pay-now-button"<?= $canLaunchPayment ? '' : ' disabled' ?>>
                 <i class="bi bi-credit-card me-1"></i>Lanjutkan Pembayaran
-              </a>
+              </button>
               <a href="/payment/reload?id=<?= rawurlencode($midtransId) ?>" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-clockwise me-1"></i>Cek Status Midtrans
               </a>
@@ -68,6 +85,7 @@ $isPending = (int) ($transaction['status_bayar'] ?? -1) === 2;
                 </button>
               </form>
             </div>
+            <p class="small text-secondary mt-3 mb-0">Popup Midtrans dibuka dari halaman ini agar detail transaksi dan aksi pembayaran tetap berada di satu flow.</p>
           <?php endif; ?>
         </div>
       </div>
@@ -113,3 +131,46 @@ $isPending = (int) ($transaction['status_bayar'] ?? -1) === 2;
     </div>
   </div>
 </main>
+
+<?php if ($canLaunchPayment): ?>
+  <script src="<?= e($snapJsUrl) ?>" data-client-key="<?= e($snapClientKey) ?>"></script>
+  <script>
+    (function () {
+      var snapToken = <?= json_encode($snapToken, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+      var finishUrl = '/payment/finish?order_id=' + encodeURIComponent(<?= json_encode($midtransId, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>);
+      var autoOpenPayment = <?= $autoOpenPayment ? 'true' : 'false' ?>;
+      var button = document.getElementById('pay-now-button');
+      var opened = false;
+
+      var openSnap = function () {
+        if (opened || !window.snap || !snapToken) {
+          return;
+        }
+
+        opened = true;
+        window.snap.pay(snapToken, {
+          onSuccess: function () {
+            window.location.href = finishUrl;
+          },
+          onPending: function () {
+            window.location.href = finishUrl;
+          },
+          onError: function () {
+            window.location.href = finishUrl;
+          },
+          onClose: function () {
+            window.location.href = finishUrl;
+          }
+        });
+      };
+
+      if (button) {
+        button.addEventListener('click', openSnap);
+      }
+
+      if (autoOpenPayment) {
+        window.setTimeout(openSnap, 300);
+      }
+    })();
+  </script>
+<?php endif; ?>

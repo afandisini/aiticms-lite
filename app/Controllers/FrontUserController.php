@@ -8,6 +8,7 @@ use App\Services\Cms\SystemSettingService;
 use App\Services\FrontAuthService;
 use App\Services\FrontTransactionService;
 use App\Services\FrontUserService;
+use App\Services\MidtransService;
 use System\Http\Request;
 use System\Http\Response;
 
@@ -16,11 +17,13 @@ class FrontUserController
     public function __construct(
         private ?FrontUserService $userService = null,
         private ?FrontTransactionService $transactionService = null,
-        private ?SystemSettingService $systemSettingService = null
+        private ?SystemSettingService $systemSettingService = null,
+        private ?MidtransService $midtransService = null
     ) {
         $this->userService = $userService ?? new FrontUserService();
         $this->transactionService = $transactionService ?? new FrontTransactionService();
         $this->systemSettingService = $systemSettingService ?? new SystemSettingService();
+        $this->midtransService = $midtransService ?? new MidtransService();
     }
 
     public function account(Request $request): Response
@@ -140,6 +143,24 @@ class FrontUserController
         $fileStatus = $this->transactionService->fileStatusLabel((int) ($transaction['status_barang'] ?? -1));
         $paymentType = $this->transactionService->paymentTypeLabel((string) ($transaction['payment_type'] ?? ''));
         $siteInfo = $this->systemSettingService->information();
+        $snapToken = trim((string) ($transaction['snap_token'] ?? ''));
+        $autoOpenPayment = (string) $request->input('pay', '') === '1';
+        $snapJsUrl = '';
+        $snapClientKey = '';
+        $paymentLaunchError = '';
+
+        if ((int) ($transaction['status_bayar'] ?? -1) === 2 && $snapToken !== '') {
+            $snapJsUrl = $this->midtransService->snapJsUrl();
+            $snapClientKey = $this->midtransService->clientKey();
+        }
+
+        if ($autoOpenPayment && ((int) ($transaction['status_bayar'] ?? -1) !== 2 || $snapToken === '')) {
+            $autoOpenPayment = false;
+            $paymentLaunchError = 'Tagihan ini tidak lagi memiliki sesi pembayaran aktif.';
+        } elseif ($autoOpenPayment && ($snapJsUrl === '' || $snapClientKey === '')) {
+            $autoOpenPayment = false;
+            $paymentLaunchError = 'Konfigurasi Midtrans belum lengkap sehingga popup pembayaran tidak bisa dibuka.';
+        }
 
         $html = app()->view()->renderWithLayout('front/users/transaction-detail', [
             'title' => 'Detail Transaksi',
@@ -150,6 +171,11 @@ class FrontUserController
             'paymentStatus' => $paymentStatus,
             'fileStatus' => $fileStatus,
             'paymentType' => $paymentType,
+            'snapToken' => $snapToken,
+            'snapJsUrl' => $snapJsUrl,
+            'snapClientKey' => $snapClientKey,
+            'autoOpenPayment' => $autoOpenPayment,
+            'paymentLaunchError' => $paymentLaunchError,
             'footerText' => '',
             'extraCssFiles' => ['/assets/css/front-user.css'],
         ], 'layouts/app');

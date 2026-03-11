@@ -6,24 +6,15 @@ namespace App\Controllers;
 
 use App\Services\FrontAuthService;
 use App\Services\FrontPaymentService;
-use App\Services\FrontTransactionService;
-use App\Services\MidtransService;
-use App\Services\Cms\SystemSettingService;
 use System\Http\Request;
 use System\Http\Response;
 
 class PaymentController
 {
     public function __construct(
-        private ?FrontPaymentService $paymentService = null,
-        private ?FrontTransactionService $transactionService = null,
-        private ?SystemSettingService $systemSettingService = null,
-        private ?MidtransService $midtransService = null
+        private ?FrontPaymentService $paymentService = null
     ) {
         $this->paymentService = $paymentService ?? new FrontPaymentService();
-        $this->transactionService = $transactionService ?? new FrontTransactionService();
-        $this->systemSettingService = $systemSettingService ?? new SystemSettingService();
-        $this->midtransService = $midtransService ?? new MidtransService();
     }
 
     public function index(Request $request): Response
@@ -49,9 +40,6 @@ class PaymentController
             return Response::redirect('/not-found?from=' . rawurlencode($request->uri()));
         }
 
-        $flash = $_SESSION['_front_flash'] ?? null;
-        unset($_SESSION['_front_flash']);
-
         if ((int) ($transaction['status_bayar'] ?? -1) !== 2 || trim((string) ($transaction['snap_token'] ?? '')) === '') {
             $_SESSION['_front_flash'] = [
                 'type' => 'error',
@@ -60,20 +48,7 @@ class PaymentController
             return Response::redirect('/users/transaction-details/' . rawurlencode($midtransId));
         }
 
-        $siteInfo = $this->systemSettingService->information();
-        $details = $this->transactionService->detailsByTransactionId((int) ($transaction['id'] ?? 0));
-        $html = app()->view()->renderWithLayout('payment', [
-            'title' => 'Pembayaran Midtrans',
-            'siteInfo' => $siteInfo,
-            'transaction' => $transaction,
-            'details' => $details,
-            'flash' => is_array($flash) ? $flash : null,
-            'footerText' => '',
-            'snapJsUrl' => $this->midtransService->snapJsUrl(),
-            'snapClientKey' => $this->midtransService->clientKey(),
-        ], 'layouts/app');
-
-        return Response::html($html);
+        return Response::redirect('/users/transaction-details/' . rawurlencode($midtransId) . '?pay=1');
     }
 
     public function orders(Request $request): Response
