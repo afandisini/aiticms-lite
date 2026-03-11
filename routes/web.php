@@ -403,7 +403,5 @@ $router->get('/read/{slug}', [HomeController::class, 'read']);
 $router->get('/p/{slug}', [HomeController::class, 'page']);
 $router->get('/read', static fn (Request $request): Response => Response::redirect('/'));
 $router->get('/read/', static fn (Request $request): Response => Response::redirect('/'));
-$router->get('/products', static fn (Request $request): Response => Response::redirect('/'));
-$router->get('/products/', static fn (Request $request): Response => Response::redirect('/'));
 $router->get('/p', static fn (Request $request): Response => Response::redirect('/'));
 $router->get('/p/', static fn (Request $request): Response => Response::redirect('/'));
