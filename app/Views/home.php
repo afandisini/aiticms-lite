@@ -301,7 +301,7 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
             </div>
             <div class="col-12 col-lg-7">
               <div class="row g-3">
-                <?php foreach ($homeValueItems as $valueItem): ?>
+                <?php foreach ($homeValueItems as $valueIndex => $valueItem): ?>
                   <div class="col-12 col-md-6">
                     <article class="home-value-card h-100">
                       <div class="home-value-icon"><i class="bi <?= e((string) $valueItem['icon']) ?>"></i></div>
@@ -309,6 +309,30 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
                       <p class="mb-0"><?= e((string) $valueItem['copy']) ?></p>
                     </article>
                   </div>
+                  <?php if ($valueIndex === 0): ?>
+                    <div class="col-12 col-md-6">
+                      <aside class="home-value-card home-value-ad-card h-100">
+                        <div class="home-value-ad-label">Sponsor</div>
+                        <h3>Rekomendasi monetisasi yang tetap nyambung dengan alur konten.</h3>
+                        <div class="home-value-ad-unit-wrap">
+                          <?php if ($adsenseClient !== '' && $adsenseHomeSlot !== ''): ?>
+                            <ins
+                              class="adsbygoogle"
+                              style="display:block"
+                              data-home-ad-unit="1"
+                              data-ad-client="<?= e($adsenseClient) ?>"
+                              data-ad-slot="<?= e($adsenseHomeSlot) ?>"
+                              data-ad-format="auto"
+                              data-full-width-responsive="true"
+                            ></ins>
+                          <?php else: ?>
+                            <div class="home-value-ad-placeholder" aria-hidden="true"></div>
+                          <?php endif; ?>
+                        </div>
+                        <p class="mb-0">Slot ini cocok untuk Google Adsense karena posisinya berada di sela-sela card dan tetap terlihat tanpa memutus fokus utama.</p>
+                      </aside>
+                    </div>
+                  <?php endif; ?>
                 <?php endforeach; ?>
                 <div class="col-12">
                   <div class="home-value-cta">
@@ -585,7 +609,7 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
           return;
         }
 
-        var adUnits = target.querySelectorAll('.product-highlight-ad-unit .adsbygoogle');
+        var adUnits = target.querySelectorAll('.product-highlight-ad-unit .adsbygoogle, [data-home-ad-unit]');
         if (!adUnits.length || !window.adsbygoogle) {
           return;
         }

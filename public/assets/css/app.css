@@ -835,6 +835,15 @@ footer a {
   padding: 1.25rem;
 }
 
+.home-value-ad-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background:
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.12), transparent 34%),
+    color-mix(in srgb, var(--front-main-bg) 95%, #fff 5%);
+}
+
 .home-value-card h3 {
   margin-bottom: 0.65rem;
   font-size: 1.02rem;
@@ -863,6 +872,39 @@ footer a {
 
 .home-value-cta-actions {
   flex-shrink: 0;
+}
+
+.home-value-ad-label {
+  margin-bottom: 0.9rem;
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.3rem 0.72rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--front-accent);
+  background: color-mix(in srgb, var(--front-accent) 12%, transparent);
+}
+
+.home-value-ad-unit-wrap {
+  min-height: 158px;
+  margin: 0.4rem 0 1rem;
+  padding: 0.85rem;
+  border-radius: 1.25rem;
+  background: color-mix(in srgb, var(--front-main-bg) 90%, #fff 10%);
+}
+
+.home-value-ad-unit-wrap .adsbygoogle,
+.home-value-ad-placeholder {
+  min-height: 122px;
+  width: 100%;
+  border-radius: 1rem;
+}
+
+.home-value-ad-placeholder {
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.16), rgba(100, 116, 139, 0.24), rgba(148, 163, 184, 0.16));
 }
 
 .home-hero .btn-hero-primary {
@@ -1785,6 +1827,14 @@ footer a {
   font-size: 0.84rem;
 }
 
+.article-inline-ad-slot {
+  margin-bottom: 1.5rem;
+}
+
+.article-inline-ad-slot .content-ad-card {
+  margin-top: 0;
+}
+
 @keyframes homePulse {
   0%,
   100% {
@@ -1828,6 +1878,10 @@ footer a {
 
 [data-theme="dark"] .home-value-shell {
   box-shadow: 0 24px 48px rgba(2, 6, 23, 0.36);
+}
+
+[data-theme="dark"] .home-value-ad-unit-wrap {
+  background: rgba(30, 41, 59, 0.6);
 }
 
 [data-theme="dark"] .home-hero .floating-rank {
@@ -2398,6 +2452,10 @@ footer a {
   .product-detail-ad-card,
   .content-ad-card {
     display: none;
+  }
+
+  .article-inline-ad-slot .content-ad-card {
+    display: block;
   }
 
   .product-detail-ad-card {

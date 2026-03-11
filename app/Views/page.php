@@ -155,7 +155,7 @@ $content = $repairLegacyAccordion($content, $title);
         <div class="container text-center">
           <h1 class="article-hero-title"><?= e($title !== '' ? $title : 'Halaman') ?></h1>
           <nav aria-label="Breadcrumb" class="article-hero-breadcrumb">
-            <a href="/">Beranda</a>
+            <a href="/" class="btn btn-outline-secondary">Beranda</a>
             <span>/</span>
             <span><?= e($title !== '' ? $title : 'Halaman') ?></span>
           </nav>
@@ -185,19 +185,21 @@ $content = $repairLegacyAccordion($content, $title);
 
         <article class="card rounded-4 shadow-sm">
           <div class="card-body p-4 p-lg-5">
+            <?php if ($adsenseClient !== '' && $adsensePageSlot !== ''): ?>
+              <div class="article-inline-ad-slot">
+                <?= view('layouts/partials/adsense_content_block', [
+                  'adsenseClient' => $adsenseClient,
+                  'adsenseSlot' => $adsensePageSlot,
+                  'title' => 'Sponsor pilihan untuk halaman ini',
+                  'description' => 'Ditempatkan di awal area konten agar visibilitas tinggi namun tetap menyatu dengan alur halaman.',
+                ]) ?>
+              </div>
+            <?php endif; ?>
             <div class="article-content">
               <?= raw($content) ?>
             </div>
           </div>
         </article>
-        <?php if ($adsenseClient !== '' && $adsensePageSlot !== ''): ?>
-          <?= view('layouts/partials/adsense_content_block', [
-            'adsenseClient' => $adsenseClient,
-            'adsenseSlot' => $adsensePageSlot,
-            'title' => 'Sponsor pilihan untuk halaman ini',
-            'description' => 'Iklan sponsor yang relevan dengan informasi pada halaman ini.',
-          ]) ?>
-        <?php endif; ?>
       </div>
     </div>
   </div>

@@ -139,7 +139,7 @@ $jsonLd = [
         <div class="container text-center">
           <h1 class="article-hero-title"><?= e($articleTitle !== '' ? $articleTitle : 'Artikel') ?></h1>
           <nav aria-label="Breadcrumb" class="article-hero-breadcrumb">
-            <a href="/">Beranda</a>
+            <a href="/" class="btn btn-primary btn-sm rounded-4">Beranda</a>
             <span>/</span>
             <a href="/">Artikel</a>
             <span>/</span>
@@ -178,6 +178,16 @@ $jsonLd = [
                         <span class="article-tag-chip"><i class="bi bi-tag"></i><?= e($tag) ?></span>
                       <?php endif; ?>
                     <?php endforeach; ?>
+                  </div>
+                <?php endif; ?>
+                <?php if ($adsenseClient !== '' && $adsenseArticleSlot !== ''): ?>
+                  <div class="article-inline-ad-slot">
+                    <?= view('layouts/partials/adsense_content_block', [
+                      'adsenseClient' => $adsenseClient,
+                      'adsenseSlot' => $adsenseArticleSlot,
+                      'title' => 'Sponsor yang relevan dengan artikel ini',
+                      'description' => 'Ditempatkan di awal area baca agar tetap terlihat tanpa mengganggu alur membaca.',
+                    ]) ?>
                   </div>
                 <?php endif; ?>
 
