@@ -80,6 +80,24 @@ class ArticleService
         return is_array($rows) ? $rows : [];
     }
 
+    public function popularPublished(int $limit = 5): array
+    {
+        $limit = max(1, min(20, $limit));
+        $stmt = db()->prepare(
+            'SELECT id, title, slug_article, images, content, created_at, counter
+             FROM article
+             WHERE deleted_at IS NULL AND publish = :publish
+             ORDER BY COALESCE(counter, 0) DESC, created_at DESC, id DESC
+             LIMIT :limit'
+        );
+        $stmt->bindValue(':publish', 'P');
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+
+        return is_array($rows) ? $rows : [];
+    }
+
     public function countPublished(): int
     {
         $stmt = db()->prepare(

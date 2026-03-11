@@ -43,7 +43,7 @@ class HomeController
             unset($_SESSION['_flash']);
         }
 
-        $articlePerPage = 5;
+        $articlePerPage = 4;
         $articlePage = max(1, (int) $request->input('page', 1));
         $totalArticles = $this->articleService->countPublished();
         $totalArticlePages = max(1, (int) ceil($totalArticles / $articlePerPage));
@@ -394,6 +394,11 @@ class HomeController
             static fn (array $row): bool => (string) ($row['slug_article'] ?? '') !== $slug
         ));
         $related = array_slice($related, 0, 10);
+        $popularArticles = array_values(array_filter(
+            $this->articleService->popularPublished(6),
+            static fn (array $row): bool => (string) ($row['slug_article'] ?? '') !== $slug
+        ));
+        $popularArticles = array_slice($popularArticles, 0, 5);
 
         $viewData = array_merge([
             'title' => decode_until_stable((string) ($article['title'] ?? 'Artikel')),
@@ -402,6 +407,7 @@ class HomeController
             'commentEnabled' => $isCommentEnabled,
             'commentHtml' => (string) ($commentSetting['html'] ?? ''),
             'relatedArticles' => $related,
+            'popularArticles' => $popularArticles,
             'metaDescription' => $metaDescription,
             'metaImage' => $this->absoluteUrl($articleImage, $baseUrl),
             'metaAuthor' => (string) ($article['author_name'] ?? $article['author_username'] ?? ''),

@@ -31,6 +31,15 @@ $articles = is_array($articles ?? null) ? $articles : [];
 $topAuthors = is_array($topAuthors ?? null) ? $topAuthors : [];
 $tags = is_array($tags ?? null) ? $tags : [];
 $pages = is_array($pages ?? null) ? $pages : [];
+$adsenseClient = trim((string) env('SITE_GOOGLE_ADSENSE_ACCOUNT', ''));
+if ($adsenseClient !== '' && !str_starts_with($adsenseClient, 'ca-')) {
+    $adsenseClient = 'ca-' . ltrim($adsenseClient, '-');
+}
+$adsenseHomeSlot = trim((string) env('SITE_GOOGLE_ADSENSE_PAGE_SLOT', ''));
+if ($adsenseHomeSlot === '') {
+    $adsenseHomeSlot = trim((string) env('SITE_GOOGLE_ADSENSE_ARTICLE_SLOT', ''));
+}
+$githubRepoUrl = trim((string) env('SITE_GITHUB_URL', 'https://github.com/afandisini/aiticms-lite.git'));
 $articlePage = max(1, (int) ($articlePage ?? 1));
 $articlePerPage = max(1, (int) ($articlePerPage ?? 5));
 $articleTotal = max(0, (int) ($articleTotal ?? count($articles)));
@@ -83,30 +92,75 @@ if ($heroSubtitle === '') {
     $heroSubtitle = 'Tingkatkan efisiensi bisnis Anda dengan aplikasi yang sudah teruji. Mulai dari POS, Inventory, hingga sistem custom untuk kebutuhan spesifik Anda.';
 }
 $homeArticleItems = array_slice($articles, 0, $articlePerPage);
-$homeArticleGroups = array_chunk($homeArticleItems, 5);
+$homeArticleGroups = array_chunk($homeArticleItems, 4);
+$homeArticleCardSlots = [1, 2, 4, 5];
+$homeValueItems = [
+    [
+        'icon' => 'bi-graph-up-arrow',
+        'title' => 'SEO Lebih Siap',
+        'copy' => 'Struktur ringan, meta yang rapi, dan halaman yang cepat bantu konten lebih mudah diindeks.',
+    ],
+    [
+        'icon' => 'bi-lightning-charge',
+        'title' => 'Cepat Dipakai Tim',
+        'copy' => 'Panel sederhana untuk artikel, halaman, produk, dan tema tanpa beban konfigurasi berlebihan.',
+    ],
+    [
+        'icon' => 'bi-code-slash',
+        'title' => 'Open Source',
+        'copy' => 'Mulai dari source code, modifikasi alur kerja, lalu deploy sesuai kebutuhan bisnis Anda.',
+    ],
+];
 $articlePaginationItems = [];
-if ($articleTotalPages <= 7) {
+if ($articleTotalPages <= 4) {
     for ($i = 1; $i <= $articleTotalPages; $i++) {
         $articlePaginationItems[] = ['type' => 'page', 'value' => $i];
     }
 } else {
-    $pagesToShow = [1, $articleTotalPages, $articlePage - 1, $articlePage, $articlePage + 1];
-    if ($articlePage <= 3) {
-        $pagesToShow = array_merge($pagesToShow, [2, 3, 4]);
+    if ($articlePage <= 2) {
+        $articlePaginationItems = [
+            ['type' => 'page', 'value' => 1],
+            ['type' => 'page', 'value' => 2],
+            ['type' => 'page', 'value' => 3],
+            ['type' => 'ellipsis', 'value' => '...'],
+        ];
+    } elseif ($articlePage >= $articleTotalPages - 1) {
+        $articlePaginationItems = [
+            ['type' => 'ellipsis', 'value' => '...'],
+            ['type' => 'page', 'value' => max(1, $articleTotalPages - 2)],
+            ['type' => 'page', 'value' => max(1, $articleTotalPages - 1)],
+            ['type' => 'page', 'value' => $articleTotalPages],
+        ];
+    } else {
+        $articlePaginationItems = [
+            ['type' => 'ellipsis', 'value' => '...'],
+            ['type' => 'page', 'value' => max(1, $articlePage - 1)],
+            ['type' => 'page', 'value' => $articlePage],
+            ['type' => 'page', 'value' => min($articleTotalPages, $articlePage + 1)],
+        ];
     }
-    if ($articlePage >= $articleTotalPages - 2) {
-        $pagesToShow = array_merge($pagesToShow, [$articleTotalPages - 3, $articleTotalPages - 2, $articleTotalPages - 1]);
-    }
-    $pagesToShow = array_values(array_unique(array_filter($pagesToShow, static fn (int $pageNumber): bool => $pageNumber >= 1 && $pageNumber <= $articleTotalPages)));
-    sort($pagesToShow);
 
-    $previousPageNumber = null;
-    foreach ($pagesToShow as $pageNumber) {
-        if ($previousPageNumber !== null && $pageNumber - $previousPageNumber > 1) {
-            $articlePaginationItems[] = ['type' => 'ellipsis', 'value' => '...'];
+    $articlePaginationItems = array_values(array_filter(
+        $articlePaginationItems,
+        static function (array $item): bool {
+            static $seen = [];
+            $key = ($item['type'] ?? '') . ':' . ($item['value'] ?? '');
+            if (isset($seen[$key])) {
+                return false;
+            }
+            $seen[$key] = true;
+            return true;
         }
-        $articlePaginationItems[] = ['type' => 'page', 'value' => $pageNumber];
-        $previousPageNumber = $pageNumber;
+    ));
+
+    $articlePaginationItems = array_values(array_filter(
+        $articlePaginationItems,
+        static fn (array $item): bool => ($item['type'] ?? '') === 'ellipsis'
+            || (((int) ($item['value'] ?? 0)) >= 1 && ((int) ($item['value'] ?? 0)) <= $articleTotalPages)
+    ));
+
+    if (count($articlePaginationItems) > 4) {
+        $articlePaginationItems = array_slice($articlePaginationItems, 0, 4);
     }
 }
 $buildArticlePageUrl = static function (int $pageNumber): string {
@@ -167,6 +221,10 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
               <a href="#artikel-aitisolutions" class="btn btn-hero-primary rounded-4">
                 <i class="bi bi-journal-richtext me-1"></i>
                 Lihat Artikel
+              </a>
+              <a href="<?= e($githubRepoUrl !== '' ? $githubRepoUrl : '#') ?>" class="btn btn-hero-secondary rounded-4" target="_blank" rel="noopener">
+                <i class="bi bi-github me-1"></i>
+                Download Source
               </a>
             </div>
           </div>
@@ -230,6 +288,47 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
         </div>
       </div>
     </section>
+    <section class="home-value-section py-4 py-lg-5">
+      <div class="container">
+        <div class="home-value-shell rounded-4">
+          <div class="row g-3 g-lg-4 align-items-stretch">
+            <div class="col-12 col-lg-5">
+              <div class="home-value-intro">
+                <div class="home-value-kicker">Optimalkan SEO dan Workflow</div>
+                <h2 class="home-value-title">Bangun website yang lebih cepat dimuat, mudah diupdate, dan siap dikembangkan.</h2>
+                <p class="home-value-copy mb-0">Aiticms-Lite cocok untuk landing page, company profile, katalog produk, dan blog yang butuh performa tinggi tanpa struktur CMS yang berat.</p>
+              </div>
+            </div>
+            <div class="col-12 col-lg-7">
+              <div class="row g-3">
+                <?php foreach ($homeValueItems as $valueItem): ?>
+                  <div class="col-12 col-md-6">
+                    <article class="home-value-card h-100">
+                      <div class="home-value-icon"><i class="bi <?= e((string) $valueItem['icon']) ?>"></i></div>
+                      <h3><?= e((string) $valueItem['title']) ?></h3>
+                      <p class="mb-0"><?= e((string) $valueItem['copy']) ?></p>
+                    </article>
+                  </div>
+                <?php endforeach; ?>
+                <div class="col-12">
+                  <div class="home-value-cta">
+                    <div>
+                      <div class="home-value-cta-label">Ajakan Menggunakan CMS Ini</div>
+                      <p class="mb-0">Mulai dari source yang siap di-clone, ubah tema sesuai brand, lalu publikasikan artikel dan halaman tanpa setup yang rumit.</p>
+                    </div>
+                    <div class="home-value-cta-actions">
+                      <a href="<?= e($githubRepoUrl !== '' ? $githubRepoUrl : '#') ?>" class="btn btn-hero-primary rounded-4" target="_blank" rel="noopener">
+                        <i class="bi bi-download me-1"></i> Download di GitHub
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <div class="container px-0">
       <section class="py-3 py-md-5" id="artikel-aitisolutions">
         <div class="mb-3">
@@ -265,9 +364,11 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
         </div>
         <div id="homeSearchGrid" class="home-article-mosaic">
           <?php foreach ($homeArticleGroups as $group): ?>
-            <div class="home-article-mosaic-group home-article-mosaic-group-count-<?= e((string) count($group)) ?>">
+            <?php $groupCountClass = count($group) >= 4 ? '5' : (string) (count($group) + 1); ?>
+            <div class="home-article-mosaic-group home-article-mosaic-group-count-<?= e($groupCountClass) ?>">
               <?php foreach ($group as $position => $article): ?>
                 <?php
+                  $visualPosition = $homeArticleCardSlots[$position] ?? ($position + 1);
                   $articleTitle = trim(decode_until_stable((string) ($article['title'] ?? '')));
                   $articleSlug = trim((string) ($article['slug_article'] ?? ''));
                   $articleUrl = $articleSlug !== '' ? '/read/' . rawurlencode($articleSlug) . '.html' : '#';
@@ -280,8 +381,9 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
                   $articlePublishedAt = trim((string) ($article['created_at'] ?? ''));
                   $articlePublishedTs = $articlePublishedAt !== '' ? strtotime($articlePublishedAt) : false;
                 ?>
-                <div class="home-article-mosaic-item home-article-mosaic-item-<?= e((string) ($position + 1)) ?>">
+                <div class="home-article-mosaic-item home-article-mosaic-item-<?= e((string) $visualPosition) ?>">
                   <article class="card h-100 shadow-sm rounded-4 product-highlight-card product-highlight-article-card">
+                    <div class="product-highlight-article-category"><i class="bi bi-bookmark-star me-1"></i> Kategori artikel</div>
                     <?php if ($articleImage !== ''): ?>
                       <img
                         src="<?= e($articleImage) ?>"
@@ -299,11 +401,10 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
                       </div>
                     <?php endif; ?>
                     <div class="card-body d-flex flex-column p-3 product-highlight-card-body">
-                      <div class="product-highlight-article-meta mb-2"><i class="bi bi-journal-richtext me-1"></i> Artikel</div>
-                      <h3 class="card-title font-poduk mb-2 product-highlight-title"><?= e($articleTitle !== '' ? $articleTitle : 'Tanpa Judul') ?></h3>
-                      <p class="product-highlight-article-excerpt mb-3"><?= e($articleExcerpt !== '' ? $articleExcerpt : 'Artikel terbaru dari Aiti Solutions.') ?></p>
+                      <h3 class="card-title font-poduk mb-1 product-highlight-title"><?= e($articleTitle !== '' ? $articleTitle : 'Tanpa Judul') ?></h3>
+                      <p class="product-highlight-article-excerpt mb-1"><?= e($articleExcerpt !== '' ? $articleExcerpt : 'Artikel terbaru dari Aiti Solutions.') ?></p>
                       <div class="d-flex flex-column flex-md-row gap-2 align-items-stretch align-items-md-center justify-content-between mt-auto">
-                        <p class="card-title mb-0 product-highlight-article-date"><?= e($articlePublishedTs !== false ? date('d M Y', $articlePublishedTs) : '') ?></p>
+                        <div class="product-highlight-article-date"><?= e($articlePublishedTs !== false ? date('d M Y', $articlePublishedTs) : '') ?></div>
                         <a href="<?= e($articleUrl) ?>" class="btn home-btn-primary rounded-pill btn-sm mb-0 w-100 d-md-none"><i class="bi bi-eye me-1"></i> Baca</a>
                         <a href="<?= e($articleUrl) ?>" class="btn home-btn-primary rounded-pill btn-sm mb-0 d-none d-md-inline-flex"><i class="bi bi-eye me-1"></i> Baca</a>
                       </div>
@@ -311,6 +412,31 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
                   </article>
                 </div>
               <?php endforeach; ?>
+              <div class="home-article-mosaic-item home-article-mosaic-item-3">
+                <aside class="card h-100 shadow-sm rounded-4 product-highlight-card product-highlight-ad-card">
+                  <div class="card-body d-flex flex-column p-3 p-lg-4 product-highlight-card-body">
+                    <div class="product-highlight-ad-label">Sponsor</div>
+                    <h3 class="card-title mb-3 product-highlight-ad-title">Rekomendasi dari <?= e($siteName) ?></h3>
+                    <div class="product-highlight-ad-unit-wrap my-2">
+                      <div class="product-highlight-ad-unit">
+                        <?php if ($adsenseClient !== '' && $adsenseHomeSlot !== ''): ?>
+                          <ins
+                            class="adsbygoogle"
+                            style="display:block"
+                            data-ad-client="<?= e($adsenseClient) ?>"
+                            data-ad-slot="<?= e($adsenseHomeSlot) ?>"
+                            data-ad-format="auto"
+                            data-full-width-responsive="true"
+                          ></ins>
+                        <?php else: ?>
+                          <div class="product-highlight-ad-unit-placeholder" aria-hidden="true"></div>
+                        <?php endif; ?>
+                      </div>
+                    </div>
+                    <p class="product-highlight-ad-copy mb-0 mt-auto">Konten sponsor yang disesuaikan dengan katalog produk.</p>
+                  </div>
+                </aside>
+              </div>
             </div>
           <?php endforeach; ?>
           <?php if ($articles === []): ?>
@@ -321,12 +447,13 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
         </div>
         <?php if ($articleTotalPages > 1): ?>
           <nav class="mt-4" aria-label="Pagination artikel homepage">
-            <ul class="pagination justify-content-center flex-wrap gap-2 mb-0 home-article-pagination">
+            <div class="home-article-pagination-shell">
+            <ul class="pagination flex-nowrap justify-content-center gap-2 mb-0 home-article-pagination">
               <li class="page-item <?= $articlePage <= 1 ? 'disabled' : '' ?>">
-                <a class="page-link rounded-pill" href="<?= e($buildArticlePageUrl(1)) ?>" aria-label="First page">&lt;&lt;</a>
+                <a class="page-link rounded-pill" href="<?= e($buildArticlePageUrl(1)) ?>" aria-label="First page"><i class="bi bi-chevron-double-left"></i></a>
               </li>
               <li class="page-item <?= $articlePage <= 1 ? 'disabled' : '' ?>">
-                <a class="page-link rounded-pill" href="<?= e($buildArticlePageUrl(max(1, $articlePage - 1))) ?>" aria-label="Previous page">&lt;</a>
+                <a class="page-link rounded-pill" href="<?= e($buildArticlePageUrl(max(1, $articlePage - 1))) ?>" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a>
               </li>
               <?php foreach ($articlePaginationItems as $paginationItem): ?>
                 <?php if (($paginationItem['type'] ?? '') === 'ellipsis'): ?>
@@ -339,12 +466,13 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
                 <?php endif; ?>
               <?php endforeach; ?>
               <li class="page-item <?= $articlePage >= $articleTotalPages ? 'disabled' : '' ?>">
-                <a class="page-link rounded-pill" href="<?= e($buildArticlePageUrl(min($articleTotalPages, $articlePage + 1))) ?>" aria-label="Next page">&gt;</a>
+                <a class="page-link rounded-pill" href="<?= e($buildArticlePageUrl(min($articleTotalPages, $articlePage + 1))) ?>" aria-label="Next page"><i class="bi bi-chevron-right"></i></a>
               </li>
               <li class="page-item <?= $articlePage >= $articleTotalPages ? 'disabled' : '' ?>">
-                <a class="page-link rounded-pill" href="<?= e($buildArticlePageUrl($articleTotalPages)) ?>" aria-label="Last page">&gt;&gt;</a>
+                <a class="page-link rounded-pill" href="<?= e($buildArticlePageUrl($articleTotalPages)) ?>" aria-label="Last page"><i class="bi bi-chevron-double-right"></i></a>
               </li>
             </ul>
+            </div>
           </nav>
         <?php endif; ?>
       </section>
@@ -410,6 +538,9 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
       var originalGridMarkup = resultsGrid.innerHTML;
       var originalTitle = resultsTitle.textContent || '';
       var originalSummary = resultsSummary.textContent || '';
+      var adsenseClient = <?= json_encode($adsenseClient, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+      var adsenseSlot = <?= json_encode($adsenseHomeSlot, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+      var siteName = <?= json_encode($siteName, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
       var submitButton = form.querySelector('button[type="submit"]');
       var submitText = submitButton ? submitButton.querySelector('.home-search-submit-text') : null;
       var activeRequest = null;
@@ -444,12 +575,36 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
         if (submitText) {
           submitText.innerHTML = isLoading
             ? '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Mencari...'
-            : '<i class="bi bi-search me-1"></i> Cari';
+          : '<i class="bi bi-search me-1"></i> Cari';
         }
       };
 
+      var initAdsenseUnits = function (scope) {
+        var target = scope || document;
+        if (!target || !adsenseClient || !adsenseSlot) {
+          return;
+        }
+
+        var adUnits = target.querySelectorAll('.product-highlight-ad-unit .adsbygoogle');
+        if (!adUnits.length || !window.adsbygoogle) {
+          return;
+        }
+
+        adUnits.forEach(function (adUnit) {
+          if (adUnit.getAttribute('data-adsbygoogle-status')) {
+            return;
+          }
+          try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          } catch (error) {
+            // Ignore duplicate init errors while preserving the rendered layout.
+          }
+        });
+      };
+
       var renderArticleCard = function (item, position) {
-        var cardPosition = (position % 5) + 1;
+        var visualPositions = [1, 2, 4, 5];
+        var cardPosition = visualPositions[position] || (position + 1);
         var media = item.image
           ? '<img src="' + escapeHtml(item.image) + '"'
             + (item.image_srcset ? ' srcset="' + escapeHtml(item.image_srcset) + '" sizes="' + escapeHtml(item.image_sizes || '(max-width: 767.98px) 50vw, 25vw') + '"' : '')
@@ -459,13 +614,13 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
         return ''
           + '<div class="home-article-mosaic-item home-article-mosaic-item-' + cardPosition + '">'
           + '  <article class="card h-100 shadow-sm rounded-4 product-highlight-card product-highlight-article-card">'
+          + '    <div class="product-highlight-article-category"><i class="bi bi-bookmark-star me-1"></i> Kategori artikel</div>'
           +        media
           + '    <div class="card-body d-flex flex-column p-3 product-highlight-card-body">'
-          + '      <div class="product-highlight-article-meta mb-2"><i class="bi bi-journal-richtext me-1"></i> Artikel</div>'
           + '      <h3 class="card-title font-poduk mb-2 product-highlight-title">' + escapeHtml(item.title) + '</h3>'
           + '      <p class="product-highlight-article-excerpt mb-3">' + escapeHtml(item.excerpt || 'Artikel terbaru dari Aiti Solutions.') + '</p>'
           + '      <div class="d-flex flex-column flex-md-row gap-2 align-items-stretch align-items-md-center justify-content-between mt-auto">'
-          + '        <p class="card-title mb-0 product-highlight-article-date">' + escapeHtml(item.published_at || '') + '</p>'
+          + '        <div class="product-highlight-article-date">' + escapeHtml(item.published_at || '') + '</div>'
           + '        <a href="' + escapeHtml(item.url) + '" class="btn home-btn-primary rounded-pill btn-sm mb-0 w-100 d-md-none"><i class="bi bi-eye me-1"></i> Baca</a>'
           + '        <a href="' + escapeHtml(item.url) + '" class="btn home-btn-primary rounded-pill btn-sm mb-0 d-none d-md-inline-flex"><i class="bi bi-eye me-1"></i> Baca</a>'
           + '      </div>'
@@ -474,14 +629,34 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
           + '</div>';
       };
 
+      var renderAdCard = function () {
+        var adMarkup = adsenseClient && adsenseSlot
+          ? '<ins class="adsbygoogle" style="display:block" data-ad-client="' + escapeHtml(adsenseClient) + '" data-ad-slot="' + escapeHtml(adsenseSlot) + '" data-ad-format="auto" data-full-width-responsive="true"></ins>'
+          : '<div class="product-highlight-ad-unit-placeholder" aria-hidden="true"></div>';
+
+        return ''
+          + '<div class="home-article-mosaic-item home-article-mosaic-item-3">'
+          + '  <aside class="card h-100 shadow-sm rounded-4 product-highlight-card product-highlight-ad-card">'
+          + '    <div class="card-body d-flex flex-column p-3 p-lg-4 product-highlight-card-body">'
+          + '      <div class="product-highlight-ad-label">Sponsor</div>'
+          + '      <h3 class="card-title mb-3 product-highlight-ad-title">Rekomendasi dari ' + escapeHtml(siteName || 'Aiti Solutions') + '</h3>'
+          + '      <div class="product-highlight-ad-unit-wrap my-2">'
+          + '        <div class="product-highlight-ad-unit">' + adMarkup + '</div>'
+          + '      </div>'
+          + '      <p class="product-highlight-ad-copy mb-0 mt-auto">Konten sponsor yang disesuaikan dengan katalog produk.</p>'
+          + '    </div>'
+          + '  </aside>'
+          + '</div>';
+      };
+
       var renderArticleGrid = function (items) {
         var groups = [];
-        for (var index = 0; index < items.length; index += 5) {
-          var chunk = items.slice(index, index + 5);
+        for (var index = 0; index < items.length; index += 4) {
+          var chunk = items.slice(index, index + 4);
           var cards = chunk.map(function (item, chunkIndex) {
             return renderArticleCard(item, chunkIndex);
           }).join('');
-          groups.push('<div class="home-article-mosaic-group home-article-mosaic-group-count-' + chunk.length + '">' + cards + '</div>');
+          groups.push('<div class="home-article-mosaic-group home-article-mosaic-group-count-' + (chunk.length >= 4 ? 5 : (chunk.length + 1)) + '">' + cards + renderAdCard() + '</div>');
         }
         return groups.join('');
       };
@@ -501,10 +676,11 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
         }
 
         var groups = [];
-        for (var groupIndex = 0; groupIndex < items.length; groupIndex += 5) {
-          var chunk = items.slice(groupIndex, groupIndex + 5);
+        for (var groupIndex = 0; groupIndex < items.length; groupIndex += 4) {
+          var chunk = items.slice(groupIndex, groupIndex + 4);
           var cards = chunk.map(function (_item, chunkIndex) {
-            var cardPosition = chunkIndex + 1;
+            var visualPositions = [1, 2, 4, 5];
+            var cardPosition = visualPositions[chunkIndex] || (chunkIndex + 1);
             return ''
               + '<div class="home-article-mosaic-item home-article-mosaic-item-' + cardPosition + '">'
               + '  <article class="card h-100 shadow-sm rounded-4 product-highlight-card product-highlight-skeleton-card" aria-hidden="true">'
@@ -521,7 +697,18 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
               + '  </article>'
               + '</div>';
           }).join('');
-          groups.push('<div class="home-article-mosaic-group home-article-mosaic-group-count-' + chunk.length + '">' + cards + '</div>');
+          cards += ''
+            + '<div class="home-article-mosaic-item home-article-mosaic-item-3">'
+            + '  <article class="card h-100 shadow-sm rounded-4 product-highlight-card product-highlight-ad-card product-highlight-skeleton-card" aria-hidden="true">'
+            + '    <div class="card-body d-flex flex-column p-3 p-lg-4 product-highlight-card-body">'
+            + '      <div class="product-highlight-skeleton-label skeleton-shimmer"></div>'
+            + '      <div class="product-highlight-skeleton-line short skeleton-shimmer"></div>'
+            + '      <div class="product-highlight-skeleton-ad-pill skeleton-shimmer"></div>'
+            + '      <div class="product-highlight-skeleton-ad-copy skeleton-shimmer mt-auto"></div>'
+            + '    </div>'
+            + '  </article>'
+            + '</div>';
+          groups.push('<div class="home-article-mosaic-group home-article-mosaic-group-count-' + (chunk.length >= 4 ? 5 : (chunk.length + 1)) + '">' + cards + '</div>');
         }
 
         resultsGrid.innerHTML = groups.join('');
@@ -534,6 +721,7 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
         setLoading(false);
         setFeedback('', '');
         resultsGrid.innerHTML = originalGridMarkup;
+        initAdsenseUnits(resultsGrid);
         resultsTitle.textContent = originalTitle;
         resultsSummary.textContent = originalSummary;
         resetButton.classList.add('d-none');
@@ -600,6 +788,7 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
               : 'Belum ada hasil yang cocok untuk "' + keyword + '".';
 
             resultsGrid.innerHTML = cardHtml || '<div class="col-12"><div class="alert rounded-4 alert-secondary mb-0">Tidak ada hasil yang cocok. Coba kata kunci lain.</div></div>';
+            initAdsenseUnits(resultsGrid);
             setFeedback(items.length > 0 ? 'Pencarian selesai.' : 'Tidak ada hasil yang ditemukan.', items.length > 0 ? 'success' : 'muted');
           })
           .catch(function (error) {
@@ -616,5 +805,18 @@ foreach (array_slice($topAuthors, 0, 2) as $index => $authorRow) {
             setLoading(false);
           });
       });
+
+      var bindAdsenseReady = function () {
+        if (window.adsbygoogle) {
+          initAdsenseUnits(resultsGrid);
+          return;
+        }
+
+        window.addEventListener('aiti:adsense-ready', function () {
+          initAdsenseUnits(resultsGrid);
+        }, { once: true });
+      };
+
+      bindAdsenseReady();
     })();
   </script>

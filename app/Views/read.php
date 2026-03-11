@@ -4,6 +4,7 @@
 /** @var bool $commentEnabled */
 /** @var string $commentHtml */
 /** @var array<int, array<string, mixed>> $relatedArticles */
+/** @var array<int, array<string, mixed>> $popularArticles */
 
 $articleContent = decode_until_stable((string) ($article['content'] ?? ''));
 $siteInfo = is_array($siteInfo ?? null) ? $siteInfo : [];
@@ -18,6 +19,7 @@ if ($viewCountRaw >= 0) {
 $commentEnabled = (bool) ($commentEnabled ?? false);
 $commentHtml = decode_until_stable((string) ($commentHtml ?? ''));
 $relatedArticles = is_array($relatedArticles ?? null) ? $relatedArticles : [];
+$popularArticles = is_array($popularArticles ?? null) ? $popularArticles : [];
 $adsenseClient = trim((string) env('SITE_GOOGLE_ADSENSE_ACCOUNT', ''));
 if ($adsenseClient !== '' && !str_starts_with($adsenseClient, 'ca-')) {
     $adsenseClient = 'ca-' . ltrim($adsenseClient, '-');
@@ -149,47 +151,76 @@ $jsonLd = [
   <?php endif; ?>
   <div class="container">
     <div class="row justify-content-center py-5">
-      <div class="col-12 col-lg-9">
-        <article class="card rounded-4 shadow-sm">
-          <div class="card-body p-4 p-lg-5">
-            <?php if ($articleImageUrl === ''): ?>
-              <h1 class="h3 mb-2"><?= e($articleTitle !== '' ? $articleTitle : 'Artikel') ?></h1>
-            <?php endif; ?>
-            <div class="d-flex align-items-center justify-content-start gap-2 mb-3 flex-wrap">
-              <span class="article-tag-chip"><i class="bi bi-calendar3 me-1"></i><?= e($articleDate) ?></span>
-              <?php if ($articleTime !== ''): ?>
-              <span class="article-tag-chip"><i class="bi bi-clock me-1"></i><?= e($articleTime) ?></span>
-              <?php endif; ?>
-              <span class="article-tag-chip"><i class="bi bi-person me-1"></i><?= e($authorName) ?></span>
-              <span class="article-tag-chip"><i class="bi bi-eye me-1"></i><?= e($viewCount) ?>x</span>
-            </div>
-            <?php if ($tags !== []): ?>
-              <div class="article-tag-list mb-4">
-                <?php foreach ($tags as $tag): ?>
-                  <?php $tagSlug = trim((string) (preg_replace('/[^a-z0-9]+/i', '-', $tag) ?? '')); ?>
-                  <?php $tagSlug = trim($tagSlug, '-'); ?>
-                  <?php if ($tagSlug !== ''): ?>
-                    <a href="/tags/<?= e(rawurlencode($tagSlug)) ?>" class="article-tag-chip text-decoration-none"><i class="bi bi-tag"></i><?= e($tag) ?></a>
-                  <?php else: ?>
-                    <span class="article-tag-chip"><i class="bi bi-tag"></i><?= e($tag) ?></span>
+      <div class="col-12 col-xl-11">
+        <div class="row g-4 align-items-start">
+          <div class="col-12 col-lg-8">
+            <article class="card rounded-4 shadow-sm">
+              <div class="card-body p-4 p-lg-5">
+                <?php if ($articleImageUrl === ''): ?>
+                  <h1 class="h3 mb-2"><?= e($articleTitle !== '' ? $articleTitle : 'Artikel') ?></h1>
+                <?php endif; ?>
+                <div class="d-flex align-items-center justify-content-start gap-2 mb-3 flex-wrap">
+                  <span class="article-tag-chip"><i class="bi bi-calendar3 me-1"></i><?= e($articleDate) ?></span>
+                  <?php if ($articleTime !== ''): ?>
+                  <span class="article-tag-chip"><i class="bi bi-clock me-1"></i><?= e($articleTime) ?></span>
                   <?php endif; ?>
-                <?php endforeach; ?>
-              </div>
-            <?php endif; ?>
+                  <span class="article-tag-chip"><i class="bi bi-person me-1"></i><?= e($authorName) ?></span>
+                  <span class="article-tag-chip"><i class="bi bi-eye me-1"></i><?= e($viewCount) ?>x</span>
+                </div>
+                <?php if ($tags !== []): ?>
+                  <div class="article-tag-list mb-4">
+                    <?php foreach ($tags as $tag): ?>
+                      <?php $tagSlug = trim((string) (preg_replace('/[^a-z0-9]+/i', '-', $tag) ?? '')); ?>
+                      <?php $tagSlug = trim($tagSlug, '-'); ?>
+                      <?php if ($tagSlug !== ''): ?>
+                        <a href="/tags/<?= e(rawurlencode($tagSlug)) ?>" class="article-tag-chip text-decoration-none"><i class="bi bi-tag"></i><?= e($tag) ?></a>
+                      <?php else: ?>
+                        <span class="article-tag-chip"><i class="bi bi-tag"></i><?= e($tag) ?></span>
+                      <?php endif; ?>
+                    <?php endforeach; ?>
+                  </div>
+                <?php endif; ?>
 
-            <div class="article-content">
-              <?= raw($articleContent) ?>
-            </div>
+                <div class="article-content">
+                  <?= raw($articleContent) ?>
+                </div>
+              </div>
+            </article>
           </div>
-        </article>
-        <?php if ($adsenseClient !== '' && $adsenseArticleSlot !== ''): ?>
-          <?= view('layouts/partials/adsense_content_block', [
-            'adsenseClient' => $adsenseClient,
-            'adsenseSlot' => $adsenseArticleSlot,
-            'title' => 'Sponsor yang relevan dengan artikel ini',
-            'description' => 'Konten sponsor yang dipilih agar tetap selaras dengan topik artikel.',
-          ]) ?>
-        <?php endif; ?>
+          <div class="col-12 col-lg-4">
+            <aside class="article-sidebar-stack">
+              <?php if ($popularArticles !== []): ?>
+                <section class="card rounded-4 shadow-sm article-sidebar-card">
+                  <div class="card-body p-4">
+                    <div class="article-sidebar-label">Popular Post</div>
+                    <div class="article-sidebar-list">
+                      <?php foreach ($popularArticles as $popularItem): ?>
+                        <?php
+                          $popularTitle = trim(decode_until_stable((string) ($popularItem['title'] ?? 'Artikel')));
+                          $popularSlug = trim((string) ($popularItem['slug_article'] ?? ''));
+                          $popularUrl = $popularSlug !== '' ? '/read/' . rawurlencode($popularSlug) . '.html' : '#';
+                          $popularDate = $formatDate((string) ($popularItem['created_at'] ?? ''));
+                          $popularViews = $formatShortNumber((int) ($popularItem['counter'] ?? 0));
+                        ?>
+                        <a href="<?= e($popularUrl) ?>" class="article-sidebar-link">
+                          <span class="article-sidebar-link-title"><?= e($popularTitle) ?></span>
+                          <span class="article-sidebar-link-meta"><i class="bi bi-eye"></i><?= e($popularViews) ?>x <span>&bull;</span> <?= e($popularDate) ?></span>
+                        </a>
+                      <?php endforeach; ?>
+                    </div>
+                  </div>
+                </section>
+              <?php endif; ?>
+              <?php if ($adsenseClient !== '' && $adsenseArticleSlot !== ''): ?>
+                <?= view('layouts/partials/adsense_product_detail_block', [
+                  'adsenseClient' => $adsenseClient,
+                  'adsenseSlot' => $adsenseArticleSlot,
+                  'title' => 'Sponsor Artikel',
+                ]) ?>
+              <?php endif; ?>
+            </aside>
+          </div>
+        </div>
 
         <?php if ($commentEnabled && trim($commentHtml) !== ''): ?>
           <section class="card rounded-4 shadow-sm mt-4">
