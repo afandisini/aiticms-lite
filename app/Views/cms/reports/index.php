@@ -77,14 +77,6 @@
   <div class="col-6 col-xl-2">
     <div class="card shadow-sm h-100">
       <div class="card-body">
-        <div class="small text-secondary">Midtrans</div>
-        <div class="h6 mb-0">Rp<?= e(number_format((int) ($overview['midtrans_income'] ?? 0), 0, ',', '.')) ?></div>
-      </div>
-    </div>
-  </div>
-  <div class="col-6 col-xl-2">
-    <div class="card shadow-sm h-100">
-      <div class="card-body">
         <div class="small text-secondary">Kas Bersih</div>
         <div class="h6 mb-0">Rp<?= e(number_format((int) ($overview['net_cash'] ?? 0), 0, ',', '.')) ?></div>
       </div>

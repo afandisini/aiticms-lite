@@ -44,14 +44,6 @@ $activities = is_array($cashflow['activities'] ?? null) ? $cashflow['activities'
   <div class="col-12 col-md-3">
     <div class="card shadow-sm h-100">
       <div class="card-body">
-        <div class="small text-secondary">Pemasukan Midtrans</div>
-        <div class="h6 mb-0">Rp<?= e(number_format((int) ($cashflow['midtrans_income'] ?? 0), 0, ',', '.')) ?></div>
-      </div>
-    </div>
-  </div>
-  <div class="col-12 col-md-3">
-    <div class="card shadow-sm h-100">
-      <div class="card-body">
         <div class="small text-secondary">Pemasukan Lainnya</div>
         <div class="h6 mb-0">Rp<?= e(number_format((int) ($cashflow['other_income'] ?? 0), 0, ',', '.')) ?></div>
       </div>

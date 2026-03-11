@@ -11,7 +11,7 @@ class ReportService
      */
     public function missingTables(): array
     {
-        $required = ['keuangan_ledger', 'keuangan_lainnya', 'transaction'];
+        $required = ['keuangan_ledger', 'keuangan_lainnya'];
         $missing = [];
 
         foreach ($required as $table) {
@@ -37,7 +37,6 @@ class ReportService
             'finance_count' => $financeCount,
             'finance_income' => (int) ($cash['other_income'] ?? 0),
             'finance_expense' => (int) ($cash['other_expense'] ?? 0),
-            'midtrans_income' => (int) ($cash['midtrans_income'] ?? 0),
             'net_cash' => (int) ($cash['net_cash'] ?? 0),
         ];
     }
@@ -469,7 +468,6 @@ class ReportService
 
         $otherIncome = 0;
         $otherExpense = 0;
-        $midtransIncome = 0;
         $activities = [];
 
         if ($this->tableExists('keuangan_lainnya')) {
@@ -497,27 +495,13 @@ class ReportService
             $activities = is_array($rows) ? $rows : [];
         }
 
-        if ($this->tableExists('transaction')) {
-            $stmtMidtrans = db()->prepare(
-                'SELECT SUM(total_bayar) AS total
-                 FROM transaction
-                 WHERE status_bayar = 3 AND periode = :period'
-            );
-            $stmtMidtrans->execute(['period' => $period]);
-            $trx = $stmtMidtrans->fetch();
-            if (is_array($trx)) {
-                $midtransIncome = (int) ($trx['total'] ?? 0);
-            }
-        }
-
-        $netCash = ($midtransIncome + $otherIncome) - $otherExpense;
+        $netCash = $otherIncome - $otherExpense;
 
         return [
             'period' => $period,
             'other_income' => $otherIncome,
             'other_expense' => $otherExpense,
-            'midtrans_income' => $midtransIncome,
-            'total_income' => $midtransIncome + $otherIncome,
+            'total_income' => $otherIncome,
             'net_cash' => $netCash,
             'activities' => $activities,
         ];
@@ -533,25 +517,6 @@ class ReportService
             $stmt = db()->query(
                 "SELECT DISTINCT periode
                  FROM keuangan_lainnya
-                 WHERE periode IS NOT NULL AND periode <> ''
-                 ORDER BY periode DESC
-                 LIMIT 36"
-            );
-            $rows = $stmt->fetchAll();
-            if (is_array($rows)) {
-                foreach ($rows as $row) {
-                    $value = trim((string) ($row['periode'] ?? ''));
-                    if ($value !== '') {
-                        $periods[] = $value;
-                    }
-                }
-            }
-        }
-
-        if ($this->tableExists('transaction')) {
-            $stmt = db()->query(
-                "SELECT DISTINCT periode
-                 FROM transaction
                  WHERE periode IS NOT NULL AND periode <> ''
                  ORDER BY periode DESC
                  LIMIT 36"
