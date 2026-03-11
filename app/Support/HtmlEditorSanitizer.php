@@ -40,6 +40,11 @@ final class HtmlEditorSanitizer
         return $current;
     }
 
+    public static function preserveCodeBlocks(string $html): string
+    {
+        return self::escapeCodeLikeBlocks($html);
+    }
+
     private static function sanitizeLinkAttributes(string $html): string
     {
         $callback = static function (array $matches): string {

@@ -407,5 +407,95 @@ $bootstrapIconsFontHref = $versionedAsset('/assets/vendor/bootstrap-icons/fonts/
       update();
     })();
   </script>
+  <script>
+    (function () {
+      var escapeHtml = function (value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      };
+
+      var highlightHtmlSnippet = function (source) {
+        var text = escapeHtml(String(source || ''));
+
+        text = text.replace(/&lt;!--[\s\S]*?--&gt;/g, function (match) {
+          return '<span class="code-token-comment">' + match + '</span>';
+        });
+
+        text = text.replace(/&lt;!DOCTYPE([\s\S]*?)&gt;/gi, function (_match, inner) {
+          return '<span class="code-token-bracket">&lt;!DOCTYPE</span>'
+            + '<span class="code-token-doctype">' + inner + '</span>'
+            + '<span class="code-token-bracket">&gt;</span>';
+        });
+
+        text = text.replace(/&lt;(\/?)([a-zA-Z][\w:-]*)([\s\S]*?)&gt;/g, function (_match, closingSlash, tagName, rawAttrs) {
+          var isClosing = closingSlash === '/';
+          var attrs = String(rawAttrs || '');
+          var trailingSlash = /\/\s*$/.test(attrs) ? '/' : '';
+          if (trailingSlash) {
+            attrs = attrs.replace(/\/\s*$/, '');
+          }
+          var renderedAttrs = '';
+
+          attrs.replace(/([^\s=\/>]+)(\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?/g, function (_attrMatch, attrName, attrValue) {
+            renderedAttrs += ' <span class="code-token-attr">' + escapeHtml(attrName) + '</span>';
+            if (attrValue) {
+              var cleanedValue = attrValue.replace(/^\s*=\s*/, '');
+              renderedAttrs += '<span class="code-token-bracket">=</span><span class="code-token-string">' + escapeHtml(cleanedValue) + '</span>';
+            }
+            return '';
+          });
+
+          return '<span class="code-token-bracket">&lt;' + (isClosing ? '/' : '') + '</span>'
+            + '<span class="code-token-tag">' + escapeHtml(tagName) + '</span>'
+            + renderedAttrs
+            + (trailingSlash ? '<span class="code-token-bracket">/</span>' : '')
+            + '<span class="code-token-bracket">&gt;</span>';
+        });
+
+        return text;
+      };
+
+      var detectLanguage = function (codeEl) {
+        var className = String(codeEl.className || '').toLowerCase();
+        if (className.indexOf('language-html') !== -1 || className.indexOf('lang-html') !== -1) {
+          return 'html';
+        }
+
+        var text = String(codeEl.textContent || '').trim();
+        if (/^<!doctype html>/i.test(text) || /<html[\s>]/i.test(text) || /<\/?[a-z][\w:-]*(\s[^>]*)?>/i.test(text)) {
+          return 'html';
+        }
+
+        return '';
+      };
+
+      var enhanceCodeBlocks = function () {
+        document.querySelectorAll('.article-content pre code, .product-content pre code').forEach(function (codeEl) {
+          if (!(codeEl instanceof HTMLElement) || codeEl.dataset.codeEnhanced === '1') {
+            return;
+          }
+
+          var language = detectLanguage(codeEl);
+          if (language !== 'html') {
+            return;
+          }
+
+          codeEl.innerHTML = highlightHtmlSnippet(codeEl.textContent || '');
+          codeEl.dataset.codeEnhanced = '1';
+          codeEl.setAttribute('data-language', language);
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', enhanceCodeBlocks, { once: true });
+      } else {
+        enhanceCodeBlocks();
+      }
+    })();
+  </script>
 </body>
 </html>

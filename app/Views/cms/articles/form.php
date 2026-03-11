@@ -3,8 +3,12 @@
 /** @var string $action */
 /** @var array<string, mixed>|null $article */
 /** @var array<int, array<string, mixed>> $categories */
+
+use App\Support\HtmlEditorSanitizer;
+
 $editorValue = static function (mixed $value): string {
-  $raw = (string) ($value ?? '');
+  $raw = HtmlEditorSanitizer::decodeHtmlEntitiesDeep((string) ($value ?? ''), 3);
+  $raw = HtmlEditorSanitizer::preserveCodeBlocks($raw);
   return str_ireplace('</textarea', '&lt;/textarea', $raw);
 };
 $mainImageValue = (string) (($article['images'] ?? ''));

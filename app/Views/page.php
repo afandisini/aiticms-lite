@@ -5,7 +5,14 @@ $adsenseClient = trim((string) env('SITE_GOOGLE_ADSENSE_ACCOUNT', ''));
 if ($adsenseClient !== '' && !str_starts_with($adsenseClient, 'ca-')) {
     $adsenseClient = 'ca-' . ltrim($adsenseClient, '-');
 }
-$adsensePageSlot = trim((string) env('SITE_GOOGLE_ADSENSE_PAGE_SLOT', ''));
+$adsensePageSlot = trim((string) env('SITE_GOOGLE_ADSENSE_HORISONTAL_SLOT', ''));
+if ($adsensePageSlot === '') {
+    $adsensePageSlot = trim((string) env('SITE_GOOGLE_ADSENSE_PAGE_SLOT', ''));
+}
+$adsensePageInlineSlot = trim((string) env('SITE_GOOGLE_ADSENSE_PERSEGI_SLOT', ''));
+if ($adsensePageInlineSlot === '') {
+    $adsensePageInlineSlot = $adsensePageSlot;
+}
 $title = trim(decode_until_stable((string) ($page['title'] ?? 'Halaman')));
 $content = decode_until_stable((string) ($page['content'] ?? ''));
 $updatedAtRaw = trim((string) ($page['updated_at'] ?? ($page['created_at'] ?? '')));
@@ -147,6 +154,9 @@ $repairLegacyAccordion = static function (string $html, string $pageTitle): stri
     return $rebuilt !== '' ? $rebuilt : $html;
 };
 $content = $repairLegacyAccordion($content, $title);
+$plainContentLength = function_exists('mb_strlen')
+    ? mb_strlen(trim(strip_tags($content)))
+    : strlen(trim(strip_tags($content)));
 ?>
 <main class="py-5 read-page-main">
   <?php if ($pageImageUrl !== ''): ?>
@@ -198,6 +208,16 @@ $content = $repairLegacyAccordion($content, $title);
             <div class="article-content">
               <?= raw($content) ?>
             </div>
+            <?php if ($adsenseClient !== '' && $adsensePageInlineSlot !== '' && $plainContentLength >= 900): ?>
+              <div class="article-inline-ad-slot">
+                <?= view('layouts/partials/adsense_content_block', [
+                  'adsenseClient' => $adsenseClient,
+                  'adsenseSlot' => $adsensePageInlineSlot,
+                  'title' => 'Sponsor tambahan',
+                  'description' => 'Ditampilkan setelah pembahasan utama untuk menangkap perhatian tanpa mengganggu bagian pembuka.',
+                ]) ?>
+              </div>
+            <?php endif; ?>
           </div>
         </article>
       </div>

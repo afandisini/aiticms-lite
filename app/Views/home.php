@@ -35,7 +35,10 @@ $adsenseClient = trim((string) env('SITE_GOOGLE_ADSENSE_ACCOUNT', ''));
 if ($adsenseClient !== '' && !str_starts_with($adsenseClient, 'ca-')) {
     $adsenseClient = 'ca-' . ltrim($adsenseClient, '-');
 }
-$adsenseHomeSlot = trim((string) env('SITE_GOOGLE_ADSENSE_PAGE_SLOT', ''));
+$adsenseHomeSlot = trim((string) env('SITE_GOOGLE_ADSENSE_PERSEGI_SLOT', ''));
+if ($adsenseHomeSlot === '') {
+    $adsenseHomeSlot = trim((string) env('SITE_GOOGLE_ADSENSE_PAGE_SLOT', ''));
+}
 if ($adsenseHomeSlot === '') {
     $adsenseHomeSlot = trim((string) env('SITE_GOOGLE_ADSENSE_ARTICLE_SLOT', ''));
 }

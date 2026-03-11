@@ -4,7 +4,7 @@ $plugins = is_array($plugins ?? null) ? $plugins : [];
 ?>
 <section class="d-flex flex-column gap-4">
   <div>
-    <h1 class="h3 mb-1">Plugin</h1>
+    <h1 class="h3 mb-1">Plugin <span class="badge text-bg-success rounded-4">Sedang Dikembangkan</span></h1>
     <p class="text-secondary mb-0">Halaman plugin sedang dikembangkan. Untuk saat ini, area ini dipakai untuk menjelaskan fungsi, kegunaan, dan arah dukungan plugin yang nanti bisa ditambahkan ke sistem.</p>
   </div>
 

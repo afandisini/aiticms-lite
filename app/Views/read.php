@@ -6,7 +6,10 @@
 /** @var array<int, array<string, mixed>> $relatedArticles */
 /** @var array<int, array<string, mixed>> $popularArticles */
 
+use App\Support\HtmlEditorSanitizer;
+
 $articleContent = decode_until_stable((string) ($article['content'] ?? ''));
+$articleContent = HtmlEditorSanitizer::preserveCodeBlocks($articleContent);
 $siteInfo = is_array($siteInfo ?? null) ? $siteInfo : [];
 $articleTitle = trim(decode_until_stable((string) ($article['title'] ?? '')));
 $articleUpdatedAtRaw = (string) ($article['updated_at'] ?? ($article['created_at'] ?? ''));
@@ -24,7 +27,18 @@ $adsenseClient = trim((string) env('SITE_GOOGLE_ADSENSE_ACCOUNT', ''));
 if ($adsenseClient !== '' && !str_starts_with($adsenseClient, 'ca-')) {
     $adsenseClient = 'ca-' . ltrim($adsenseClient, '-');
 }
-$adsenseArticleSlot = trim((string) env('SITE_GOOGLE_ADSENSE_ARTICLE_SLOT', ''));
+$adsenseArticleSlot = trim((string) env('SITE_GOOGLE_ADSENSE_HORISONTAL_SLOT', ''));
+if ($adsenseArticleSlot === '') {
+    $adsenseArticleSlot = trim((string) env('SITE_GOOGLE_ADSENSE_ARTICLE_SLOT', ''));
+}
+$adsenseArticleSidebarSlot = trim((string) env('SITE_GOOGLE_ADSENSE_VERTIKAL_SLOT', ''));
+if ($adsenseArticleSidebarSlot === '') {
+    $adsenseArticleSidebarSlot = trim((string) env('SITE_GOOGLE_ADSENSE_PERSEGI_SLOT', ''));
+}
+$adsenseArticleBottomSlot = trim((string) env('SITE_GOOGLE_ADSENSE_PERSEGI_SLOT', ''));
+if ($adsenseArticleBottomSlot === '') {
+    $adsenseArticleBottomSlot = $adsenseArticleSlot;
+}
 
 $resolveImageUrl = static function (string $value): string {
     return resolve_frontend_image_url($value, 1);
@@ -94,6 +108,9 @@ $articleContent = preg_replace_callback(
     },
     $articleContent
 ) ?? $articleContent;
+$articleContentLength = function_exists('mb_strlen')
+    ? mb_strlen(trim(strip_tags($articleContent)))
+    : strlen(trim(strip_tags($articleContent)));
 
 $articleContent = preg_replace_callback(
     '#<pre\b([^>]*)>(.*?)</pre>#is',
@@ -194,6 +211,16 @@ $jsonLd = [
                 <div class="article-content">
                   <?= raw($articleContent) ?>
                 </div>
+                <?php if ($adsenseClient !== '' && $adsenseArticleBottomSlot !== '' && $articleContentLength >= 1200): ?>
+                  <div class="article-inline-ad-slot">
+                    <?= view('layouts/partials/adsense_content_block', [
+                      'adsenseClient' => $adsenseClient,
+                      'adsenseSlot' => $adsenseArticleBottomSlot,
+                      'title' => 'Sponsor pilihan',
+                      'description' => 'Slot lanjutan setelah isi artikel utama untuk menjaga visibilitas iklan tetap natural.',
+                    ]) ?>
+                  </div>
+                <?php endif; ?>
               </div>
             </article>
           </div>
@@ -221,10 +248,10 @@ $jsonLd = [
                   </div>
                 </section>
               <?php endif; ?>
-              <?php if ($adsenseClient !== '' && $adsenseArticleSlot !== ''): ?>
+              <?php if ($adsenseClient !== '' && $adsenseArticleSidebarSlot !== ''): ?>
                 <?= view('layouts/partials/adsense_product_detail_block', [
                   'adsenseClient' => $adsenseClient,
-                  'adsenseSlot' => $adsenseArticleSlot,
+                  'adsenseSlot' => $adsenseArticleSidebarSlot,
                   'title' => 'Sponsor Artikel',
                 ]) ?>
               <?php endif; ?>
